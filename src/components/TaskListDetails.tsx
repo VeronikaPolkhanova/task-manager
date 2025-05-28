@@ -2,18 +2,17 @@
 
 import { useState } from "react";
 
+import { createPortal } from "react-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { RootState } from "@/redux/store";
-import {
-  addTask,
-  changeTaskStatus,
-  deleteTask,
-} from "@/redux/slices/tasksSlice";
+import { addTask } from "@/redux/slices/tasksSlice";
 
 import Input from "./ui/Input";
 import Button from "./ui/Button";
+import TaskItem from "./TaskItem";
 import Textarea from "./ui/Textarea";
+import TaskListTitleModal from "./TaskListTitleModal";
 
 interface TaskListDetailsProps {
   params: { listId: string };
@@ -21,6 +20,8 @@ interface TaskListDetailsProps {
 
 const TaskListDetails: React.FC<TaskListDetailsProps> = ({ params }) => {
   const dispatch = useDispatch();
+  const [isOpen, setIsOpen] = useState(false);
+
   const list = useSelector((state: RootState) =>
     state.tasks.lists.find((l) => l.id === params.listId)
   );
@@ -30,7 +31,7 @@ const TaskListDetails: React.FC<TaskListDetailsProps> = ({ params }) => {
   const [timeLimit, setTimeLimit] = useState(60);
 
   if (!list) {
-    return <div className="p-6">List not found</div>;
+    return <div className="p-6 text-gray-400">List not found</div>;
   }
 
   const handleAddTask = () => {
@@ -51,8 +52,11 @@ const TaskListDetails: React.FC<TaskListDetailsProps> = ({ params }) => {
 
   return (
     <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold">{list.title}</h2>
-      <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">{list.title}</h2>
+        <Button onClick={() => setIsOpen(true)}>Edit</Button>
+      </div>
+      <div className="flex flex-col gap-1 space-y-2">
         <Input
           className="border px-2 py-1 w-full rounded"
           placeholder="Title"
@@ -67,55 +71,34 @@ const TaskListDetails: React.FC<TaskListDetailsProps> = ({ params }) => {
         <Input
           type="number"
           className="border px-2 py-1 w-full rounded"
-          placeholder="Time (sec)"
-          value={timeLimit}
+          placeholder="Time (min)"
+          min={0}
+          value={isNaN(timeLimit) ? "" : timeLimit}
           onChange={(e) => setTimeLimit(parseInt(e.target.value))}
         />
-        <Button onClick={handleAddTask}>Add task</Button>
+        <Button className="w-fit" onClick={handleAddTask}>
+          Add task
+        </Button>
       </div>
       <div className="space-y-3">
-        {list.tasks.map((task) => (
-          <div
-            key={task.id}
-            className="border rounded p-3 flex flex-col md:flex-row justify-between md:items-center gap-2">
-            <div>
-              <h3 className="font-semibold">{task.title}</h3>
-              <p className="text-sm text-gray-600">{task.description}</p>
-              <p className="text-xs text-gray-400">
-                Time: {task.timeLimit} sec
-              </p>
-              <p className="text-xs">Status: {task.status}</p>
-            </div>
-
-            <div className="flex gap-2">
-              <select
-                value={task.status}
-                onChange={(e) =>
-                  dispatch(
-                    changeTaskStatus({
-                      listId: params.listId,
-                      taskId: task.id,
-                      status: e.target.value as any,
-                    })
-                  )
-                }
-                className="border px-2 py-1 rounded">
-                <option value="pending">Ожидает</option>
-                <option value="in_progress">В процессе</option>
-                <option value="done">Готово</option>
-              </select>
-              <Button
-                onClick={() =>
-                  dispatch(
-                    deleteTask({ listId: params.listId, taskId: task.id })
-                  )
-                }>
-                Delete
-              </Button>
-            </div>
-          </div>
-        ))}
+        {list.tasks.length ? (
+          list.tasks.map((task) => (
+            <TaskItem key={task.id} listId={params.listId} task={task} />
+          ))
+        ) : (
+          <p className="text-gray-400">Tasks lists are empty</p>
+        )}
       </div>
+      {isOpen &&
+        createPortal(
+          <TaskListTitleModal
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            listTitle={list.title}
+            listId={list.id}
+          />,
+          document.body
+        )}
     </div>
   );
 };

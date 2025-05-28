@@ -1,28 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { nanoid } from "nanoid";
-
-type TaskStatus = "pending" | "in_progress" | "done";
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: TaskStatus;
-  timeLimit: number;
-}
-
-interface TaskList {
-  id: string;
-  title: string;
-  tasks: Task[];
-}
+import { TaskList, Task } from "@/types";
+import { initialStateData } from "@/constants";
 
 interface TasksState {
   lists: TaskList[];
 }
 
 const initialState: TasksState = {
-  lists: [],
+  lists: initialStateData as TaskList[],
 };
 
 const tasksSlice = createSlice({
@@ -62,6 +48,7 @@ const tasksSlice = createSlice({
           description: action.payload.description,
           status: "pending",
           timeLimit: action.payload.timeLimit,
+          startedAt: null,
         });
       }
     },
@@ -69,22 +56,32 @@ const tasksSlice = createSlice({
       state,
       action: PayloadAction<{
         listId: string;
-        taskId: string;
-        title?: string;
-        description?: string;
-        timeLimit?: number;
+        task: Task;
       }>
     ) => {
-      const list = state.lists.find((l) => l.id === action.payload.listId);
-      const task = list?.tasks.find((t) => t.id === action.payload.taskId);
-      if (task) {
-        if (action.payload.title !== undefined)
-          task.title = action.payload.title;
-        if (action.payload.description !== undefined)
-          task.description = action.payload.description;
-        if (action.payload.timeLimit !== undefined)
-          task.timeLimit = action.payload.timeLimit;
+      const { listId, task: updatedTask } = action.payload;
+      const list = state.lists.find((l) => l.id === listId);
+      if (!list) return;
+
+      const index = list.tasks.findIndex((t) => t.id === updatedTask.id);
+      if (index === -1) return;
+
+      const prevTask = list.tasks[index];
+
+      // Таймерная логика: если статус стал "in_progress", запускаем таймер
+      if (
+        prevTask.status !== "in_progress" &&
+        updatedTask.status === "in_progress"
+      ) {
+        updatedTask.startedAt = Date.now();
       }
+
+      // Если статус не "in_progress", таймер сбрасывается
+      if (updatedTask.status !== "in_progress") {
+        updatedTask.startedAt = null;
+      }
+
+      list.tasks[index] = updatedTask;
     },
     deleteTask: (
       state,
@@ -95,31 +92,31 @@ const tasksSlice = createSlice({
         list.tasks = list.tasks.filter((t) => t.id !== action.payload.taskId);
       }
     },
-    changeTaskStatus: (
-      state,
-      action: PayloadAction<{
-        listId: string;
-        taskId: string;
-        status: TaskStatus;
-      }>
-    ) => {
-      const list = state.lists.find((l) => l.id === action.payload.listId);
-      const task = list?.tasks.find((t) => t.id === action.payload.taskId);
-      if (task) {
-        task.status = action.payload.status;
+    updateTask: (state, action: PayloadAction<Task>) => {
+      const updatedTask = action.payload;
+      const list = state.lists.find((l) => l.id === updatedTask.id);
+      if (!list) return;
+
+      const index = list.tasks.findIndex((t) => t.id === updatedTask.id);
+      if (index === -1) return;
+
+      const existingTask = list.tasks[index];
+
+      // Если статус поменялся:
+      if (existingTask.status !== updatedTask.status) {
+        if (updatedTask.status === "in_progress") {
+          updatedTask.startedAt = Date.now(); // стартуем таймер
+        } else {
+          updatedTask.startedAt = null; // сбрасываем
+        }
       }
+
+      list.tasks[index] = updatedTask;
     },
   },
 });
 
-export const {
-  addList,
-  editList,
-  deleteList,
-  addTask,
-  editTask,
-  deleteTask,
-  changeTaskStatus,
-} = tasksSlice.actions;
+export const { addList, editList, deleteList, addTask, editTask, deleteTask } =
+  tasksSlice.actions;
 
 export default tasksSlice.reducer;

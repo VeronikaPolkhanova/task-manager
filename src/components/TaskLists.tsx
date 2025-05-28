@@ -36,23 +36,27 @@ const TaskLists = () => {
         <Button onClick={handleAddList}>Add</Button>
       </div>
       <ul className="space-y-2">
-        {lists.map((list) => (
-          <li
-            key={list.id}
-            className="p-3 border border-blue-100 rounded flex justify-between items-center">
-            <div className="flex flex-col gap-2">
-              {list.title} ({list.tasks.length} tasks)
-              <Link
-                href={`/dashboard/${list.id}`}
-                className="bg-transparent font-bold text-gray-400 hover:bg-transparent hover:text-gray-500">
-                Show
-              </Link>
-            </div>
-            <Button onClick={() => dispatch(deleteList({ id: list.id }))}>
-              Delete
-            </Button>
-          </li>
-        ))}
+        {lists.length ? (
+          lists.map((list) => (
+            <li
+              key={list.id}
+              className="p-3 border border-blue-100 rounded flex justify-between items-center">
+              <div className="flex flex-col gap-2">
+                {list.title} ({list.tasks.length} tasks)
+                <Link
+                  href={`/dashboard/${list.id}`}
+                  className="bg-transparent font-bold text-gray-400 hover:bg-transparent hover:text-gray-500">
+                  Show
+                </Link>
+              </div>
+              <Button onClick={() => dispatch(deleteList({ id: list.id }))}>
+                Delete
+              </Button>
+            </li>
+          ))
+        ) : (
+          <p className="text-gray-400">Tasks lists are empty</p>
+        )}
       </ul>
     </div>
   );
