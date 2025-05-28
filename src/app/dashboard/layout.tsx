@@ -1,6 +1,7 @@
+import type, { Metadata } from "next";
+
 import Header from "@/components/Header";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Task manager",
@@ -13,6 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    // если пользователь не залогинен, то он не может попасть на /dahsboard
     <ProtectedRoute>
       <Header />
       <div className="p-6 max-w-4xl mx-auto">{children}</div>

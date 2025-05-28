@@ -54,7 +54,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
     setMode("Show");
     onClose();
   };
-
+  // если mode === "Show" показываем детали задачи
+  // если mode === "Edit" показывем инпуты для редактировани задачи
   return (
     <Modal isOpen={isOpen} onClose={handleCloseModal}>
       <div className="flex flex-col gap-2">

@@ -1,9 +1,11 @@
 import TaskListDetails from "@/components/TaskListDetails";
 
-export default function TaskListPage({
+export default async function TaskListPage({
   params,
 }: {
   params: { listId: string };
 }) {
-  return <TaskListDetails params={{ listId: params.listId }} />;
+  // await убирает warning `params` should be awaited before using its properties
+  const { listId } = await params;
+  return <TaskListDetails listId={listId} />;
 }

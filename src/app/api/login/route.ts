@@ -10,6 +10,7 @@ export async function POST(req: Request) {
     (it) => it.email === email && it.password === password
   );
 
+  // эмуляция задержки ответа от сервера
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   if (user) {

@@ -3,16 +3,16 @@
 import { useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 
+import { RootState } from "@/redux/store";
+import Input from "@/components/ui/Input";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 import {
+  loginFailure,
   loginStart,
   loginSuccess,
-  loginFailure,
 } from "@/redux/slices/authSlice";
-import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");

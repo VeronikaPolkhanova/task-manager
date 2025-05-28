@@ -18,7 +18,7 @@ interface TaskItemProps {
   task: Task;
   listId: string;
 }
-
+// карточка задачи в списке задач
 const TaskItem: React.FC<TaskItemProps> = ({ task, listId }) => {
   const [isOpen, setIsOpen] = useState(false);
 
