@@ -1,46 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { RootState } from "@/redux/store";
+import { RootState, AppDispatch } from "@/redux/store";
 import Input from "@/components/ui/Input";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
-import {
-  loginFailure,
-  loginStart,
-  loginSuccess,
-} from "@/redux/slices/authSlice";
+import { login } from "@/redux/slices/authSlice";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const auth = useSelector((state: RootState) => state.auth);
+  const { loading, error, user } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const router = useRouter();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleLogin = async () => {
-    dispatch(loginStart());
-    try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) throw new Error("Invalid credentials");
-
-      const data = await res.json();
-      dispatch(loginSuccess(data.user));
-      router.push("/dashboard");
-    } catch (err: any) {
-      dispatch(loginFailure(err.message));
-    }
+    const params = { email, password };
+    dispatch(login(params));
   };
+
+  useEffect(() => {
+    if (user) router.push("/dashboard");
+  }, [user]);
 
   return (
     <div className="p-6 max-w-80 mx-auto min-h-screen flex flex-col justify-center items-center gap-2">
@@ -57,10 +45,10 @@ const LoginPage = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <Button onClick={handleLogin} disabled={auth.loading}>
+      <Button onClick={handleLogin} disabled={loading}>
         Login
       </Button>
-      {auth.error && <p className="text-amber-700">{auth.error}</p>}
+      {(error as string) && <p className="text-amber-700">{error as string}</p>}
     </div>
   );
 };
