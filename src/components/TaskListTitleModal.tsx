@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useDispatch } from "react-redux";
 
-import { editList } from "@/redux/slices/tasksSlice";
+import { editList } from "@/redux/slices/listSlice";
 
 import Modal from "./ui/Modal";
 import Input from "./ui/Input";

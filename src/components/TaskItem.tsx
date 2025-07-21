@@ -9,7 +9,7 @@ import { Task } from "@/types";
 import { statusOptions } from "@/constants";
 import { deleteTask } from "@/redux/slices/tasksSlice";
 
-import { cn } from "./lib/utils";
+import { cn } from "./lib/utils/cn";
 import Button from "./ui/Button";
 import TaskTimer from "./TaskTimer";
 import TaskModal from "./TaskDetailsModal";

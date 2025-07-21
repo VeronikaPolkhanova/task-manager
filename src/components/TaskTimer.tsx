@@ -1,21 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { cn } from "./lib/utils";
+import { cn } from "./lib/utils/cn";
+import { formatTime } from "./lib/utils/formatDate";
 
 interface TaskTimerProps {
   startedAt: number | null;
   timeLimit: number;
 }
-
-const formatTime = (ms: number, timeLimit: string): string => {
-  const totalSec = Math.max(0, Math.floor(ms / 1000));
-  const min = Math.floor(totalSec / 60);
-  const sec = totalSec % 60;
-  return `${min.toString().padStart(timeLimit.length, timeLimit)}:${sec
-    .toString()
-    .padStart(2, "0")}`;
-};
 
 const TaskTimer: React.FC<TaskTimerProps> = ({ startedAt, timeLimit }) => {
   const [remaining, setRemaining] = useState(timeLimit);

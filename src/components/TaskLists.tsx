@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import Link from "next/link";
 import { RootState } from "@/redux/store";
-import { addList, deleteList } from "@/redux/slices/tasksSlice";
+import { addList, deleteList } from "@/redux/slices/listSlice";
 
 import Input from "./ui/Input";
 import Button from "./ui/Button";
